@@ -1,0 +1,4 @@
+User-agent:*
+Disalow:/wp-admin/
+Sitemap:https://www.gtcree.com/sitemap.xml
+Sitemap:https://www.gtcree.com/?sitemap.xml
