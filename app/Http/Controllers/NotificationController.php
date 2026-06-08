@@ -32,7 +32,7 @@ class NotificationController extends Controller
     {
         $notifications = auth()->user()->notifications()->paginate(15);
         auth()->user()->unreadNotifications->markAsRead();
-        return view('frontend.user.customer.notification.index', compact('notifications'));
+        return account_view('pages.notifications.index', compact('notifications'));
     }
 
 

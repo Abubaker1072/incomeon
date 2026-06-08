@@ -16,7 +16,7 @@ class WishlistController extends Controller
     public function index()
     {
         $wishlists = get_wishlists()->paginate(15);
-        return view('frontend.user.view_wishlist', compact('wishlists'));
+        return customer_view('pages.wishlist', compact('wishlists'));
     }
 
     /**

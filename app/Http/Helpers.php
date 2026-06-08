@@ -3006,3 +3006,103 @@ function filter_single_preorder_product($product)
     // If vendor system is not activated, return the product directly
     return $product;
 }
+
+if (!function_exists('customer_view')) {
+    /**
+     * Resolve Module 1 — Customer Marketplace Blade views.
+     */
+    function customer_view(string $name, array $data = [])
+    {
+        return view('modules.marketplace.' . $name, $data);
+    }
+}
+
+if (!function_exists('account_view')) {
+    /**
+     * Resolve Module 2 — Customer Account & Checkout Blade views.
+     */
+    function account_view(string $name, array $data = [])
+    {
+        $module = config('frontend.account_module', 'account');
+        return view("modules.{$module}.{$name}", $data);
+    }
+}
+
+if (!function_exists('admin_view')) {
+    /**
+     * Resolve Module 4 — Admin Control Panel Blade views.
+     */
+    function admin_view(string $name, array $data = [])
+    {
+        $module = config('frontend.admin_module', 'admin');
+        return view("modules.{$module}.{$name}", $data);
+    }
+}
+
+if (!function_exists('seller_view')) {
+    /**
+     * Resolve Module 3 — Seller Dashboard Blade views.
+     */
+    function seller_view(string $name, array $data = [])
+    {
+        $module = config('frontend.seller_module', 'seller');
+        return view("modules.{$module}.compat.seller.{$name}", $data);
+    }
+}
+
+if (!function_exists('delivery_view')) {
+    /**
+     * Resolve Module 5 — Delivery Management Blade views.
+     */
+    function delivery_view(string $name, array $data = [])
+    {
+        $module = config('frontend.delivery_module', 'delivery');
+        return view("modules.{$module}.{$name}", $data);
+    }
+}
+
+if (!function_exists('delivery_status_label')) {
+    /**
+     * Map internal delivery status to Module 5 display label.
+     */
+    function delivery_status_label(?string $status): string
+    {
+        $map = [
+            'pending' => translate('Assigned'),
+            'confirmed' => translate('Assigned'),
+            'picked_up' => translate('Picked Up'),
+            'on_the_way' => translate('Out For Delivery'),
+            'delivered' => translate('Delivered'),
+            'cancelled' => translate('Failed'),
+        ];
+
+        return $map[$status] ?? ucfirst(str_replace('_', ' ', $status ?? ''));
+    }
+}
+
+if (!function_exists('delivery_status_badge_class')) {
+    function delivery_status_badge_class(?string $status): string
+    {
+        $map = [
+            'pending' => 'assigned',
+            'confirmed' => 'assigned',
+            'picked_up' => 'picked',
+            'on_the_way' => 'transit',
+            'delivered' => 'delivered',
+            'cancelled' => 'failed',
+        ];
+
+        return $map[$status] ?? 'assigned';
+    }
+}
+
+if (!function_exists('business_view')) {
+    /**
+     * Resolve Module 6 — Advanced Business Blade views.
+     */
+    function business_view(string $name, array $data = [])
+    {
+        $module = config('frontend.business_module', 'business');
+        return view("modules.{$module}.{$name}", $data);
+    }
+}

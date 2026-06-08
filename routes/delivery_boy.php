@@ -47,6 +47,11 @@ Route::group(['middleware' => ['user', 'verified', 'unbanned', 'prevent-back-his
         Route::get('/total-earnings', 'total_earning')->name('total-earnings');
         Route::get('/cancel-request/{id}', 'cancel_request')->name('cancel-request');
         Route::get('/cancel-request-list', 'delivery_boys_cancel_request_list')->name('cancel-request-list');
+        Route::get('/delivery/route-info', 'route_info')->name('delivery.route-info');
+        Route::get('/delivery/cod-collection', 'cod_collection')->name('delivery.cod-collection');
+        Route::get('/delivery/history', 'delivery_history')->name('delivery.history');
+        Route::get('/delivery/verification/{id}', 'verification')->name('delivery.verification');
+        Route::post('/delivery/upload-proof', 'upload_proof')->name('delivery.upload-proof');
     });
 
     Route::controller(OrderController::class)->group(function () {

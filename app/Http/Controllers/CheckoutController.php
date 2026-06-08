@@ -119,7 +119,7 @@ class CheckoutController extends Controller
 
             $carts = $carts->fresh();
 
-            return view('frontend.checkout', compact('carts', 'address_id', 'total', 'carrier_list', 'shipping_info'));
+            return account_view('pages.checkout.index', compact('carts', 'address_id', 'total', 'carrier_list', 'shipping_info'));
         }
         flash(translate('Please Select cart items to Proceed'))->error();
         return back();
@@ -336,7 +336,7 @@ class CheckoutController extends Controller
         }
         if ($carts && count($carts) > 0) {
             $categories = Category::all();
-            return view('frontend.shipping_info', compact('categories', 'carts'));
+            return account_view('pages.checkout.index', compact('categories', 'carts'));
         }
         flash(translate('Your cart is empty'))->success();
         return back();
@@ -419,7 +419,7 @@ class CheckoutController extends Controller
             $carrier_list = $carrier_query->get();
         }
 
-        return view('frontend.delivery_info', compact('carts', 'carrier_list', 'deliveryInfo'));
+        return account_view('pages.checkout.index', compact('carts', 'carrier_list', 'deliveryInfo'));
     }
 
     public function store_delivery_info(Request $request)
@@ -483,7 +483,7 @@ class CheckoutController extends Controller
             }
             $total = $subtotal + $tax + $shipping;
 
-            return view('frontend.payment_select', compact('carts', 'shipping_info', 'total'));
+            return account_view('pages.checkout.index', compact('carts', 'shipping_info', 'total'));
         } else {
             flash(translate('Your Cart was empty'))->warning();
             return redirect()->route('home');
@@ -612,7 +612,7 @@ class CheckoutController extends Controller
         }
         // $shipping_info = Address::where('id', $carts[0]['address_id'])->first();
 
-        $returnHTML = view('frontend.partials.cart.cart_summary', compact('coupon', 'carts', 'proceed'))->render();
+        $returnHTML = view('modules.account.partials.cart.cart-summary', compact('coupon', 'carts', 'proceed'))->render();
         return response()->json(array('response_message' => $response_message, 'html'=>$returnHTML));
     }
 
@@ -635,7 +635,7 @@ class CheckoutController extends Controller
 
         // $shipping_info = Address::where('id', $carts[0]['address_id'])->first();
 
-        return view('frontend.partials.cart.cart_summary', compact('coupon', 'carts', 'proceed'));
+        return view('modules.account.partials.cart.cart-summary', compact('coupon', 'carts', 'proceed'));
     }
 
     public function order_confirmed()
@@ -656,7 +656,7 @@ class CheckoutController extends Controller
             }
         }
 
-        return view('frontend.order_confirmed', compact('combined_order'));
+        return account_view('pages.checkout.confirmed', compact('combined_order'));
     }
 
     public function guestCustomerInfoCheck(Request $request){
@@ -724,8 +724,8 @@ class CheckoutController extends Controller
         $carts = $carts->fresh();
 
         return array(
-            'delivery_info' => view('frontend.partials.cart.delivery_info', compact('carts', 'carrier_list', 'shipping_info'))->render(),
-            'cart_summary' => view('frontend.partials.cart.cart_summary', compact('carts', 'proceed'))->render(),
+            'delivery_info' => view('modules.account.partials.cart.delivery-info', compact('carts', 'carrier_list', 'shipping_info'))->render(),
+            'cart_summary' => view('modules.account.partials.cart.cart-summary', compact('carts', 'proceed'))->render(),
             'carrier_count' => count($carrier_list)
         );
     }
@@ -777,7 +777,7 @@ class CheckoutController extends Controller
 
         $carts = $carts->fresh();
 
-        return view('frontend.partials.cart.cart_summary', compact('carts', 'proceed'))->render();
+        return view('modules.account.partials.cart.cart-summary', compact('carts', 'proceed'))->render();
     }
 
     public function orderRePayment(Request $request){

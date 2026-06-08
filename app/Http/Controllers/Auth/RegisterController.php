@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use Cookie;
 use Session;
 use App\Models\Cart;
+use App\Models\Shop;
 use App\Models\User;
 use App\Rules\Recaptcha;
 use Illuminate\Validation\Rule;
@@ -19,106 +20,96 @@ use App\Utility\EmailUtility;
 
 class RegisterController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
-
     use RegistersUsers;
 
-    /**
-     * Where to redirect users after registration.
-     *
-     * @var string
-     */
     protected $redirectTo = '/';
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('guest');
     }
 
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
     protected function validator(array $data)
     {
-        return Validator::make($data, [
+        $rules = [
             'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
+            'account_type' => 'required|in:customer,vendor',
             'g-recaptcha-response' => [
                 Rule::when(get_setting('google_recaptcha') == 1, ['required', new Recaptcha()], ['sometimes'])
-            ]
-        ]);
+            ],
+        ];
+
+        if (($data['account_type'] ?? '') === 'vendor') {
+            $rules['shop_name'] = 'required|string|max:255';
+            $rules['phone'] = 'required|string|max:20';
+            $rules['address'] = 'required|string|max:500';
+        }
+
+        $messages = [
+            'account_type.required' => translate('Please select Customer or Vendor.'),
+            'account_type.in' => translate('Please select Customer or Vendor.'),
+            'email.required' => translate('Email is required'),
+            'email.unique' => translate('Email already exists.'),
+            'shop_name.required' => translate('Brand name is required'),
+            'phone.required' => translate('Phone number is required'),
+            'address.required' => translate('Brand address is required'),
+        ];
+
+        return Validator::make($data, $rules, $messages);
     }
 
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return \App\Models\User
-     */
     protected function create(array $data)
     {
-        // dd($data);
-        if (isset($data['email']) && filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $user = User::create([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'password' => Hash::make($data['password']),
-            ]);
-        }
-        else {
-            if (addon_is_activated('otp_system')){
-                $user = User::create([
-                    'name' => $data['name'],
-                    'phone' => '+'.$data['country_code'].$data['phone'],
-                    'password' => Hash::make($data['password']),
-                    'verification_code' => rand(100000, 999999)
-                ]);
+        $isVendor = ($data['account_type'] ?? 'customer') === 'vendor';
 
-                if(get_setting('customer_registration_verify') != '1' ){
+        if ($isVendor) {
+            $user = new User();
+            $user->name = $data['name'];
+            $user->email = $data['email'];
+            $user->phone = $data['phone'];
+            $user->password = Hash::make($data['password']);
+            $user->user_type = 'seller';
+            $user->email_verified_at = now();
+            $user->save();
+
+            $shop = new Shop();
+            $shop->user_id = $user->id;
+            $shop->name = $data['shop_name'];
+            $shop->address = $data['address'];
+            $shop->slug = preg_replace('/\s+/', '-', str_replace('/', ' ', $data['shop_name'])) . '-' . $user->id;
+            $shop->save();
+        } elseif (isset($data['email']) && filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            $user = new User();
+            $user->name = $data['name'];
+            $user->email = $data['email'];
+            $user->password = Hash::make($data['password']);
+            $user->user_type = 'customer';
+            $user->save();
+        } else {
+            if (addon_is_activated('otp_system')) {
+                $user = new User();
+                $user->name = $data['name'];
+                $user->phone = '+' . $data['country_code'] . $data['phone'];
+                $user->password = Hash::make($data['password']);
+                $user->user_type = 'customer';
+                $user->verification_code = rand(100000, 999999);
+                $user->save();
+
+                if (get_setting('customer_registration_verify') != '1') {
                     $otpController = new OTPVerificationController;
                     $otpController->send_code($user);
                 }
-
+            } else {
+                throw new \RuntimeException('Email is required for registration.');
             }
         }
-        
-        if(session('temp_user_id') != null){
-            if(auth()->user()->user_type == 'customer'){
-                Cart::where('temp_user_id', session('temp_user_id'))
-                ->update(
-                    [
-                        'user_id' => auth()->user()->id,
-                        'temp_user_id' => null
-                    ]
-                );
-            }
-            else {
-                Cart::where('temp_user_id', session('temp_user_id'))->delete();
-            }
-            Session::forget('temp_user_id');
-        }
 
-        if(Cookie::has('referral_code')){
+        if (Cookie::has('referral_code')) {
             $referral_code = Cookie::get('referral_code');
             $referred_by_user = User::where('referral_code', $referral_code)->first();
-            if($referred_by_user != null){
+            if ($referred_by_user != null) {
                 $user->referred_by = $referred_by_user->id;
                 $user->save();
             }
@@ -130,14 +121,13 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
         if (filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
-            if(User::where('email', $request->email)->first() != null){
-                flash(translate('Email or Phone already exists.'));
-                return back();
+            if (User::where('email', $request->email)->first() != null) {
+                flash(translate('Email already exists.'))->error();
+                return back()->withInput();
             }
-        }
-        elseif (User::where('phone', '+'.$request->country_code.$request->phone)->first() != null) {
-            flash(translate('Phone already exists.'));
-            return back();
+        } elseif (User::where('phone', '+' . $request->country_code . $request->phone)->first() != null) {
+            flash(translate('Phone already exists.'))->error();
+            return back()->withInput();
         }
 
         $this->validator($request->all())->validate();
@@ -146,34 +136,59 @@ class RegisterController extends Controller
 
         $this->guard()->login($user);
 
-        if($user->email != null){
-            if(BusinessSetting::where('type', 'email_verification')->first()->value != 1 || get_setting('customer_registration_verify') === '1'){
+        if (session('temp_user_id') != null) {
+            if ($user->user_type == 'customer') {
+                Cart::where('temp_user_id', session('temp_user_id'))
+                    ->update([
+                        'user_id' => $user->id,
+                        'temp_user_id' => null
+                    ]);
+            } else {
+                Cart::where('temp_user_id', session('temp_user_id'))->delete();
+            }
+            Session::forget('temp_user_id');
+        }
+
+        if ($user->user_type === 'seller') {
+            if (get_email_template_data('registration_email_to_seller', 'status') == 1) {
+                try {
+                    EmailUtility::selelr_registration_email('registration_email_to_seller', $user, null);
+                } catch (\Exception $e) {}
+            }
+            if (get_email_template_data('seller_reg_email_to_admin', 'status') == 1) {
+                try {
+                    EmailUtility::selelr_registration_email('seller_reg_email_to_admin', $user, null);
+                } catch (\Exception $e) {}
+            }
+            flash(translate('Vendor registration successful! Welcome to your dashboard.'))->success();
+            return redirect()->route('seller.dashboard');
+        }
+
+        if ($user->email != null) {
+            if (BusinessSetting::where('type', 'email_verification')->first()->value != 1 || get_setting('customer_registration_verify') === '1') {
                 $user->email_verified_at = date('Y-m-d H:m:s');
                 $user->save();
                 offerUserWelcomeCoupon();
                 flash(translate('Registration successful.'))->success();
-            }
-            else {
+            } else {
                 try {
                     EmailUtility::email_verification($user, 'customer');
                     flash(translate('Registration successful. Please verify your email.'))->success();
                 } catch (\Throwable $e) {
-                    dd($e);
                     $user->delete();
                     flash(translate('Registration failed. Please try again later.'))->error();
+                    return back()->withInput();
                 }
             }
 
-            // Account Opening Email to customer
-            if ( $user != null && (get_email_template_data('registration_email_to_customer', 'status') == 1)) {
+            if ($user != null && (get_email_template_data('registration_email_to_customer', 'status') == 1)) {
                 try {
                     EmailUtility::customer_registration_email('registration_email_to_customer', $user, null);
                 } catch (\Exception $e) {}
             }
         }
 
-        // customer Account Opening Email to Admin
-        if ( $user != null && (get_email_template_data('customer_reg_email_to_admin', 'status') == 1)) {
+        if ($user != null && (get_email_template_data('customer_reg_email_to_admin', 'status') == 1)) {
             try {
                 EmailUtility::customer_registration_email('customer_reg_email_to_admin', $user, null);
             } catch (\Exception $e) {}
@@ -185,12 +200,18 @@ class RegisterController extends Controller
 
     protected function registered(Request $request, $user)
     {
+        if ($user->user_type === 'seller') {
+            return redirect()->route('seller.dashboard');
+        }
+
         if ($user->email == null) {
             return redirect()->route('verification');
-        }elseif(session('link') != null){
-            return redirect(session('link'));
-        }else {
-            return redirect()->route('home');
         }
+
+        if (session('link') != null) {
+            return redirect(session('link'));
+        }
+
+        return redirect()->route('dashboard');
     }
 }

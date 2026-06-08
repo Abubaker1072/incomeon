@@ -29,7 +29,7 @@ class ConversationController extends Controller
     {
         if (BusinessSetting::where('type', 'conversation_system')->first()->value == 1) {
             $conversations = Conversation::where('sender_id', Auth::user()->id)->orWhere('receiver_id', Auth::user()->id)->orderBy('updated_at', 'desc')->paginate(8);
-            return view('frontend.user.conversations.index', compact('conversations'));
+            return account_view('pages.conversations.index', compact('conversations'));
         } else {
             flash(translate('Conversation is disabled at this moment'))->warning();
             return back();
@@ -130,7 +130,7 @@ class ConversationController extends Controller
             $conversation->receiver_viewed = 1;
         }
         $conversation->save();
-        return view('frontend.user.conversations.show', compact('conversation'));
+        return account_view('pages.conversations.show', compact('conversation'));
     }
 
 
@@ -150,7 +150,7 @@ class ConversationController extends Controller
             $conversation->receiver_viewed = 1;
             $conversation->save();
         }
-        return view('frontend.partials.messages', compact('conversation'));
+        return view('modules.account.partials.messages', compact('conversation'));
     }
 
     /**
@@ -191,7 +191,23 @@ class ConversationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $conversation = Conversation::findOrFail($id);
+        $message = new Message;
+        $message->conversation_id = $conversation->id;
+        $message->user_id = Auth::user()->id;
+        $message->message = $request->message;
+        $message->save();
+
+        if (Auth::user()->id == $conversation->sender_id) {
+            $conversation->receiver_viewed = 0;
+            $conversation->sender_viewed = 1;
+        } else {
+            $conversation->sender_viewed = 0;
+            $conversation->receiver_viewed = 1;
+        }
+        $conversation->save();
+
+        return back();
     }
 
     /**

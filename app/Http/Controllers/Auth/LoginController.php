@@ -13,6 +13,7 @@ use App\Services\SocialRevoke;
 use App\Utility\EmailUtility;
 use Session;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use CoreComponentRepository;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Client;
@@ -40,6 +41,25 @@ class LoginController extends Controller
      */
     /*protected $redirectTo = '/';*/
 
+    /**
+     * Show the admin login form. Customers already logged in can still access
+     * this page to sign in as admin; admins are sent to the dashboard.
+     */
+    public function showLoginForm()
+    {
+        if (Auth::check()) {
+            $user = Auth::user();
+            if (in_array($user->user_type, ['admin', 'staff'])) {
+                return redirect()->route('admin.dashboard');
+            }
+            // Customer/seller session blocks admin login — clear it so the form is shown.
+            $this->guard()->logout();
+            request()->session()->invalidate();
+            request()->session()->regenerateToken();
+        }
+
+        return view('auth.login');
+    }
 
     /**
      * Redirect the user to the Google authentication page.
@@ -282,6 +302,8 @@ class LoginController extends Controller
             return redirect()->route('admin.dashboard');
         } elseif (auth()->user()->user_type == 'seller') {
             return redirect()->route('seller.dashboard');
+        } elseif (auth()->user()->user_type == 'delivery_boy') {
+            return redirect()->route('dashboard');
         } else {
 
             if (session('link') != null) {
@@ -386,7 +408,7 @@ class LoginController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest')->except(['logout', 'account_deletion']);
+        $this->middleware('guest')->except(['logout', 'account_deletion', 'showLoginForm']);
     }
 
     public function handle_demo_login()

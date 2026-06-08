@@ -18,7 +18,7 @@ class WalletController extends Controller
     public function index()
     {
         $wallets = Wallet::where('user_id', Auth::user()->id)->latest()->paginate(10);
-        return view('frontend.user.wallet.index', compact('wallets'));
+        return account_view('pages.wallet.index', compact('wallets'));
     }
 
     public function recharge(Request $request)

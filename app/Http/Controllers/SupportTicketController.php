@@ -26,7 +26,7 @@ class SupportTicketController extends Controller
     public function index()
     {
         $tickets = Ticket::where('user_id', Auth::user()->id)->orderBy('created_at', 'desc')->paginate(10);
-        return view('frontend.user.support_ticket.index', compact('tickets'));
+        return account_view('pages.support.index', compact('tickets'));
     }
 
     public function admin_index(Request $request)
@@ -156,7 +156,7 @@ class SupportTicketController extends Controller
         $ticket->client_viewed = 1;
         $ticket->save();
         $ticket_replies = $ticket->ticketreplies;
-        return view('frontend.user.support_ticket.show', compact('ticket', 'ticket_replies'));
+        return account_view('pages.support.show', compact('ticket', 'ticket_replies'));
     }
 
     public function admin_show($id)

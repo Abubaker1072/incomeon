@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,6 +19,13 @@ class AppServiceProvider extends ServiceProvider
   {
       Schema::defaultStringLength(191);
       Paginator::useBootstrap();
+      View::getFinder()->prependLocation(resource_path('views/modules/seller/compat'));
+      View::getFinder()->prependLocation(resource_path('views/modules/admin/compat'));
+      View::getFinder()->prependLocation(resource_path('views/modules/delivery/compat'));
+
+      if ($this->app->environment('local') && request()->isSecure()) {
+          URL::forceScheme('https');
+      }
   }
 
   /**
@@ -26,6 +35,8 @@ class AppServiceProvider extends ServiceProvider
    */
   public function register()
   {
-    //
+    $this->app->singleton('core-component-repository', function () {
+      return new \App\Support\LocalCoreComponentRepository();
+    });
   }
 }

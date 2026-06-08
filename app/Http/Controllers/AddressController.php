@@ -81,7 +81,7 @@ class AddressController extends Controller
         $data['states'] = State::where('status', 1)->where('country_id', $data['address_data']->country_id)->get();
         $data['cities'] = City::where('status', 1)->where('state_id', $data['address_data']->state_id)->get();
 
-        $returnHTML = view('frontend.partials.address.address_edit_modal', $data)->render();
+        $returnHTML = view('modules.account.partials.address.address-edit-form', $data)->render();
         return response()->json(array('data' => $data, 'html' => $returnHTML));
         //        return ;
     }

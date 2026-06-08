@@ -31,11 +31,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 
     <!-- CSS Files -->
-    <link rel="stylesheet" href="{{ static_asset('assets/css/vendors.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     @if ($rtl == 1)
-        <link rel="stylesheet" href="{{ static_asset('assets/css/bootstrap-rtl.min.css') }}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-v4-rtl@4.6.2-1/dist/css/bootstrap-rtl.min.css">
     @endif
-    <link rel="stylesheet" href="{{ static_asset('assets/css/aiz-core.css') }}">
+    <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+    <link rel="stylesheet" href="{{ static_asset('assets/css/auth-login.css') }}?v=1.0.0">
     
     <style>
         :root{

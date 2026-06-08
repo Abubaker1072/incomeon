@@ -67,7 +67,7 @@ class ForgotPasswordController extends Controller
                 $array['content'] = $email_body;
                 Mail::to($user->email)->queue(new MailManager($array));
 
-                return view('auth.'.get_setting('authentication_layout_select').'.reset_password');
+                return account_view('pages.auth.reset-password');
             }
             else {
                 flash(translate('No account exists with this email'))->error();

@@ -9,88 +9,70 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-url" content="{{ getBaseURL() }}">
     <meta name="file-base-url" content="{{ getFileBaseURL() }}">
-
-    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <!-- Favicon -->
     <link rel="icon" href="{{ uploaded_asset(get_setting('site_icon')) }}">
     <link rel="apple-touch-icon" href="{{ uploaded_asset(get_setting('site_icon')) }}">
-    <title>{{ get_setting('website_name') . ' | ' . get_setting('site_motto') }}</title>
+    <title>{{ translate('Admin') }} | {{ get_setting('site_name') }}</title>
 
-    <!-- google font -->
-    {{-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700"> --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+    <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
 
-    <!-- aiz core css -->
-    <link rel="stylesheet" href="{{ static_asset('assets/css/vendors.css') }}">
+    {{-- Core vendor CSS was removed from public/assets — load from CDN --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     @if (\App\Models\Language::where('code', Session::get('locale', Config::get('app.locale')))->first()->rtl == 1)
-        <link rel="stylesheet" href="{{ static_asset('assets/css/bootstrap-rtl.min.css') }}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-v4-rtl@4.6.2-1/dist/css/bootstrap-rtl.min.css">
     @endif
-    <link rel="stylesheet" href="{{ static_asset('assets/css/aiz-core.css') }}">
+    <link rel="stylesheet" href="{{ static_asset('assets/modules/admin/css/admin.css') }}?v=5.0.0">
+    <link rel="stylesheet" href="{{ static_asset('assets/css/responsive-global.css') }}?v=1.0.0">
+
+    <script>
+        (function () {
+            try {
+                if (localStorage.getItem('adm-theme') === 'dark') {
+                    document.documentElement.classList.add('adm-dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
 
     <style>
         :root {
-            --blue: #3390f3;
-            --hov-blue: #1f6dc2;
-            --soft-blue: #f1fafd;
-
-            --primary: #009ef7;
-            --hov-primary: #008cdd;
-            --soft-primary: #f1fafd;
+            --blue: #2557aa;
+            --hov-blue: #1a3f7a;
+            --soft-blue: #eef3fa;
+            --primary: #2557aa;
+            --hov-primary: #1a3f7a;
+            --soft-primary: #eef3fa;
             --secondary: #a1a5b3;
             --soft-secondary: rgba(143, 151, 171, 0.15);
             --success: #19c553;
             --hov-success: #16a846;
-            --soft-success:  #e6fff3;
-            --info: #8f60ee;
-            --hov-info: #714cbd;
-            --soft-info: #f4effe;
+            --soft-success: #e6fff3;
+            --info: #00b4d8;
+            --hov-info: #0096b8;
+            --soft-info: #e6f9fd;
             --warning: #ffc700;
             --soft-warning: #fff9e3;
             --danger: #F0416C;
             --soft-danger: #fff4f8;
             --dark: #232734;
             --soft-dark: #1b2133;
-
-            --secondary-base: #f1416c;
-            --hov-secondary-base: #c73459;
-            --soft-secondary-base: rgb(241, 65, 108, 0.15);
+            --secondary-base: #00b4d8;
+            --hov-secondary-base: #0096b8;
+            --soft-secondary-base: rgba(0, 180, 216, 0.15);
         }
-        body {
-            font-size: 12px;
-            font-family: 'Public Sans', sans-serif;
-        }
-        /* .bootstrap-select .btn,
-        .btn:not(.btn-circle),
-        .form-control,
-        .input-group-text,
-        .custom-file-label, .custom-file-label::after {
-            border-radius: 0;
-        } */
-        .border-gray {
-            border-color: #e4e5eb !important;
-        }
-        .card {
-            border-radius: 8px;
+        body { font-size: 13px; font-family: 'Public Sans', sans-serif; }
+        .border-gray { border-color: #e4e5eb !important; }
+        .card, .dashboard-box {
+            border-radius: 10px;
             background: #fff;
-            border: 1px solid #f1f1f4;
-            box-shadow: 0px 6px 14px rgba(35, 39, 52, 0.04);
+            border: 1px solid #eef0f4;
+            box-shadow: 0 6px 14px rgba(35, 39, 52, 0.04);
         }
-        .form-control {
-            border: 1px solid #e4e5eb;
-        }
-        .aiz-color-input{
-            border-top-left-radius: 4px !important;
-            border-bottom-left-radius: 4px !important;
-        }
-        .form-control.file-amount{
-            border-top-right-radius: 4px !important;
-            border-bottom-right-radius: 4px !important;
-        }
+        .form-control { border: 1px solid #e4e5eb; }
     </style>
     <script>
         var AIZ = AIZ || {};
@@ -117,10 +99,14 @@
             files: '{{ translate('Files') }}',
         }
     </script>
-
+    @stack('styles')
 </head>
 
-<body class="">
+<body class="adm-module">
+
+    <template id="adm-theme-toggle-tpl">
+        @include('modules.admin.compat.backend.inc.admin_nav_toggle')
+    </template>
 
     <div class="aiz-main-wrapper">
         @include('backend.inc.admin_sidenav')
@@ -130,20 +116,20 @@
                 <div class="px-15px px-lg-25px">
                     @yield('content')
                 </div>
-                <div class="bg-white text-center py-3 px-15px px-lg-25px mt-auto border-top">
-                    <p class="mb-0">&copy; {{ get_setting('site_name') }} v{{ get_setting('current_version') }}</p>
+                <div class="bg-white text-center py-3 px-15px px-lg-25px mt-auto border-top adm-footer">
+                    <p class="mb-0 text-secondary">&copy; {{ get_setting('site_name') }} &middot; {{ translate('Admin Control Panel') }} v{{ get_setting('current_version') }}</p>
                 </div>
-            </div><!-- .aiz-main-content -->
-        </div><!-- .aiz-content-wrapper -->
-    </div><!-- .aiz-main-wrapper -->
+            </div>
+        </div>
+    </div>
 
     @yield('modal')
 
-
-    <script src="{{ static_asset('assets/js/vendors.js') }}"></script>
-    <script src="{{ static_asset('assets/js/aiz-core.js') }}"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ static_asset('assets/modules/admin/js/admin.js') }}?v=5.0.0"></script>
     @yield('script')
+    @stack('scripts')
 
     <script type="text/javascript">
         @foreach (session('flash_notification', collect())->toArray() as $message)
@@ -158,61 +144,48 @@
         @endforeach
 
         $('.dropdown-menu a[data-toggle="tab"]').click(function(e) {
-            e.stopPropagation()
-            $(this).tab('show')
-        })
+            e.stopPropagation();
+            $(this).tab('show');
+        });
 
         if ($('#lang-change').length > 0) {
             $('#lang-change .dropdown-menu a').each(function() {
                 $(this).on('click', function(e) {
                     e.preventDefault();
-                    var $this = $(this);
-                    var locale = $this.data('flag');
                     $.post('{{ route('language.change') }}', {
                         _token: '{{ csrf_token() }}',
-                        locale: locale
-                    }, function(data) {
-                        location.reload();
-                    });
-
+                        locale: $(this).data('flag')
+                    }, function() { location.reload(); });
                 });
             });
         }
 
         function menuSearch() {
-            var filter, item;
-            filter = $("#menu-search").val().toUpperCase();
-            items = $("#main-menu").find("a");
-            items = items.filter(function(i, item) {
-                if ($(item).find(".aiz-side-nav-text")[0].innerText.toUpperCase().indexOf(filter) > -1 && $(item)
-                    .attr('href') !== '#') {
-                    return item;
-                }
+            var filter = $("#menu-search").val().toUpperCase();
+            var items = $("#main-menu").find("a").filter(function(i, item) {
+                var textEl = $(item).find(".aiz-side-nav-text")[0];
+                return textEl && textEl.innerText.toUpperCase().indexOf(filter) > -1 && $(item).attr('href') !== '#';
             });
 
             if (filter !== '') {
                 $("#main-menu").addClass('d-none');
-                $("#search-menu").html('')
+                $("#search-menu").html('');
                 if (items.length > 0) {
-                    for (i = 0; i < items.length; i++) {
-                        const text = $(items[i]).find(".aiz-side-nav-text")[0].innerText;
-                        const link = $(items[i]).attr('href');
+                    items.each(function() {
+                        var text = $(this).find(".aiz-side-nav-text")[0].innerText;
+                        var link = $(this).attr('href');
                         $("#search-menu").append(
-                            `<li class="aiz-side-nav-item"><a href="${link}" class="aiz-side-nav-link"><i class="las la-ellipsis-h aiz-side-nav-icon"></i><span>${text}</span></a></li`
-                            );
-                    }
-                } else {
-                    $("#search-menu").html(
-                        `<li class="aiz-side-nav-item"><span	class="text-center text-muted d-block">{{ translate('Nothing Found') }}</span></li>`
+                            '<li class="aiz-side-nav-item"><a href="' + link + '" class="aiz-side-nav-link"><i class="las la-ellipsis-h aiz-side-nav-icon"></i><span>' + text + '</span></a></li>'
                         );
+                    });
+                } else {
+                    $("#search-menu").html('<li class="aiz-side-nav-item"><span class="text-center text-muted d-block py-3">{{ translate('Nothing Found') }}</span></li>');
                 }
             } else {
                 $("#main-menu").removeClass('d-none');
-                $("#search-menu").html('')
+                $("#search-menu").html('');
             }
         }
     </script>
-
 </body>
-
 </html>

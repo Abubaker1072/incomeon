@@ -16,11 +16,18 @@ class IsAdmin
      */
     public function handle($request, Closure $next)
     {
-        if (Auth::check() && (Auth::user()->user_type == 'admin' || Auth::user()->user_type == 'staff')) {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        if (in_array(Auth::user()->user_type, ['admin', 'staff'])) {
             return $next($request);
         }
-        else{
-            abort(404);
-        }
+
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
     }
 }

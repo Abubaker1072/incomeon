@@ -29,7 +29,7 @@
             <ul class="aiz-side-nav-list" id="main-menu" data-toggle="aiz-side-menu">
 
                 {{-- Dashboard --}}
-                @can('admin_dashboard')
+                @if (in_array(auth()->user()->user_type, ['admin', 'staff']))
                     <li class="aiz-side-nav-item">
                         <a href="{{ route('admin.dashboard') }}" class="aiz-side-nav-link">
                             <div class="aiz-side-nav-icon">
@@ -43,7 +43,7 @@
                             <span class="aiz-side-nav-text">{{ translate('Dashboard') }}</span>
                         </a>
                     </li>
-                @endcan
+                @endif
 
                 <!-- POS Addon-->
                 @if (addon_is_activated('pos_system') &&

@@ -171,9 +171,9 @@ class PageController extends Controller
         $page = Page::where('slug', $slug)->first();
         if($page != null){
             if($page->type == 'contact_us_page'){
-                return view('frontend.contact_us_page', compact('page'));
+                return customer_view('pages.contact', compact('page'));
             }
-            return view('frontend.custom_page', compact('page'));
+            return customer_view('pages.policies.policy', compact('page'));
         }
         abort(404);
     }

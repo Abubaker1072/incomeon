@@ -118,7 +118,7 @@ class SearchController extends Controller
             }
             $products = $products->with('taxes')->paginate(12, ['*'], 'preorder_product')->appends(request()->query());
             
-            return view('frontend.product_listing', compact('products', 'query', 'category', 'categories', 'category_id', 'brand_id', 'sort_by', 'seller_id', 'min_price', 'max_price', 'attributes', 'selected_attribute_values', 'colors', 'selected_color','product_type','is_available'));            
+            return customer_view('pages.product-listing', compact('products', 'query', 'category', 'categories', 'category_id', 'brand_id', 'sort_by', 'seller_id', 'min_price', 'max_price', 'attributes', 'selected_attribute_values', 'colors', 'selected_color','product_type','is_available'));            
         }
 
 
@@ -212,7 +212,7 @@ class SearchController extends Controller
         
         $products = filter_products($products)->with('taxes')->paginate(24)->appends(request()->query());
 
-        return view('frontend.product_listing', compact('products', 'query', 'category', 'categories', 'category_id', 'brand_id', 'sort_by', 'seller_id', 'min_price', 'max_price', 'attributes', 'selected_attribute_values', 'colors', 'selected_color','product_type','is_available'));
+        return customer_view('pages.product-listing', compact('products', 'query', 'category', 'categories', 'category_id', 'brand_id', 'sort_by', 'seller_id', 'min_price', 'max_price', 'attributes', 'selected_attribute_values', 'colors', 'selected_color','product_type','is_available'));
     }
 
     public function listing(Request $request)

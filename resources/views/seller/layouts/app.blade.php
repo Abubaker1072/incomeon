@@ -20,12 +20,13 @@
 	<!-- google font -->
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700">
 
-	<!-- aiz core css -->
-	<link rel="stylesheet" href="{{ static_asset('assets/css/vendors.css') }}">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     @if(\App\Models\Language::where('code', Session::get('locale', Config::get('app.locale')))->first()->rtl == 1)
-    <link rel="stylesheet" href="{{ static_asset('assets/css/bootstrap-rtl.min.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-v4-rtl@4.6.2-1/dist/css/bootstrap-rtl.min.css">
     @endif
-	<link rel="stylesheet" href="{{ static_asset('assets/css/aiz-seller.css') }}">
+	<link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+	<link rel="stylesheet" href="{{ static_asset('assets/modules/seller/css/seller.css') }}?v=1.0.0">
+	<link rel="stylesheet" href="{{ static_asset('assets/css/responsive-global.css') }}?v=1.0.0">
 
     <style>
         body {
@@ -71,7 +72,7 @@
 	</script>
 
 </head>
-<body class="">
+<body class="sel-module">
 
 	<div class="aiz-main-wrapper">
         @include('seller.inc.seller_sidenav')
@@ -91,8 +92,9 @@
     @yield('modal')
 
 
-	<script src="{{ static_asset('assets/js/vendors.js') }}" ></script>
-	<script src="{{ static_asset('assets/js/aiz-core.js') }}" ></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="{{ static_asset('assets/modules/seller/js/seller.js') }}?v=1.0.0"></script>
 
     @yield('script')
 
@@ -155,5 +157,6 @@
         }
     </script>
 
+    <script src="{{ static_asset('assets/js/panel-mobile.js') }}?v=1.0.0"></script>
 </body>
 </html>

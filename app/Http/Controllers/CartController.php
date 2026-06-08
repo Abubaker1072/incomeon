@@ -34,14 +34,14 @@ class CartController extends Controller
             $carts = Cart::where('user_id', $user_id)->get();
         } else {
             $temp_user_id = $request->session()->get('temp_user_id');
-            $carts = ($temp_user_id != null) ? Cart::where('temp_user_id', $temp_user_id)->get() : [];
+            $carts = ($temp_user_id != null) ? Cart::where('temp_user_id', $temp_user_id)->get() : collect();
         }
         if (count($carts) > 0) {
             $carts->toQuery()->update(['shipping_cost' => 0]);
             $carts = $carts->fresh();
         }
 
-        return view('frontend.view_cart', compact('carts'));
+        return account_view('pages.cart', compact('carts'));
     }
 
     public function showCartModal(Request $request)
@@ -83,7 +83,7 @@ class CartController extends Controller
                 'status' => 0,
                 'cart_count' => count($carts),
                 'modal_view' => view('frontend.partials.cart.removeAuctionProductFromCart')->render(),
-                'nav_cart_view' => view('frontend.partials.cart.cart')->render(),
+                'nav_cart_view' => view('modules.account.partials.cart.cart')->render(),
             );
         }
 
@@ -94,7 +94,7 @@ class CartController extends Controller
                 'status' => 0,
                 'cart_count' => count($carts),
                 'modal_view' => view('frontend.partials.minQtyNotSatisfied', ['min_qty' => $product->min_qty])->render(),
-                'nav_cart_view' => view('frontend.partials.cart.cart')->render(),
+                'nav_cart_view' => view('modules.account.partials.cart.cart')->render(),
             );
         }
 
@@ -124,7 +124,7 @@ class CartController extends Controller
                     'status' => 0,
                     'cart_count' => count($carts),
                     'modal_view' => view('frontend.partials.cart.auctionProductAlredayAddedCart')->render(),
-                    'nav_cart_view' => view('frontend.partials.cart.cart')->render(),
+                    'nav_cart_view' => view('modules.account.partials.cart.cart')->render(),
                 );
             }
             if ($product_stock->qty < $cart->quantity + $request['quantity']) {
@@ -132,7 +132,7 @@ class CartController extends Controller
                     'status' => 0,
                     'cart_count' => count($carts),
                     'modal_view' => view('frontend.partials.outOfStockCart')->render(),
-                    'nav_cart_view' => view('frontend.partials.cart.cart')->render(),
+                    'nav_cart_view' => view('modules.account.partials.cart.cart')->render(),
                 );
             }
             $quantity = $cart->quantity + $request['quantity'];
@@ -155,7 +155,7 @@ class CartController extends Controller
             'status' => 1,
             'cart_count' => count($carts),
             'modal_view' => view('frontend.partials.cart.addedToCart', compact('product', 'cart'))->render(),
-            'nav_cart_view' => view('frontend.partials.cart.cart')->render(),
+            'nav_cart_view' => view('modules.account.partials.cart.cart')->render(),
         );
     }
 
@@ -174,8 +174,8 @@ class CartController extends Controller
 
         return array(
             'cart_count' => count($carts),
-            'cart_view' => view('frontend.partials.cart.cart_details', compact('carts'))->render(),
-            'nav_cart_view' => view('frontend.partials.cart.cart')->render(),
+            'cart_view' => view('modules.account.partials.cart.cart-details', compact('carts'))->render(),
+            'nav_cart_view' => view('modules.account.partials.cart.cart')->render(),
         );
     }
 
@@ -237,8 +237,8 @@ class CartController extends Controller
 
         return array(
             'cart_count' => count($carts),
-            'cart_view' => view('frontend.partials.cart.cart_details', compact('carts'))->render(),
-            'nav_cart_view' => view('frontend.partials.cart.cart')->render(),
+            'cart_view' => view('modules.account.partials.cart.cart-details', compact('carts'))->render(),
+            'nav_cart_view' => view('modules.account.partials.cart.cart')->render(),
         );
     }
 
@@ -288,6 +288,6 @@ class CartController extends Controller
         }
         $carts = $carts->fresh();
 
-        return view('frontend.partials.cart.cart_details', compact('carts'))->render();
+        return view('modules.account.partials.cart.cart-details', compact('carts'))->render();
     }
 }

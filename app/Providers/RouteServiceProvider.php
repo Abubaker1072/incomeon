@@ -74,6 +74,8 @@ class RouteServiceProvider extends ServiceProvider
 
     $this->mapPreorderRoutes();
 
+    $this->mapBusinessRoutes();
+
     $this->mapWebRoutes();
 
     // $this->mapInstallRoutes();
@@ -347,6 +349,16 @@ class RouteServiceProvider extends ServiceProvider
        ->middleware('api')
        ->namespace($this->namespace)
        ->group(base_path('routes/api_seller.php'));
+  }
+
+  /**
+   * Define Module 6 business routes.
+   */
+  protected function mapBusinessRoutes()
+  {
+    Route::middleware('web')
+       ->namespace($this->namespace)
+       ->group(base_path('routes/business.php'));
   }
 
   /**
